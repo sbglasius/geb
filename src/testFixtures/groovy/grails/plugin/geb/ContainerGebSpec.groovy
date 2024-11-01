@@ -21,9 +21,16 @@ import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.remote.RemoteWebDriver
 import org.testcontainers.Testcontainers
 import org.testcontainers.containers.BrowserWebDriverContainer
+import org.testcontainers.containers.Container
+import org.testcontainers.containers.ContainerState
+import org.testcontainers.containers.ExecConfig
 import org.testcontainers.containers.PortForwardingContainer
+import org.testcontainers.images.builder.Transferable
+import org.testcontainers.utility.MountableFile
+import org.testcontainers.utility.ThrowingFunction
 import spock.lang.Shared
 
+import java.nio.charset.Charset
 import java.time.Duration
 
 /**
@@ -59,14 +66,14 @@ class ContainerGebSpec extends GebSpec {
                 throw new IllegalStateException('Test class must be annotated with @Integration for serverPort to be injected')
             }
             webDriverContainer = new BrowserWebDriverContainer()
+            Testcontainers.exposeHostPorts(serverPort)
             webDriverContainer.tap {
                 addExposedPort(serverPort)
                 withAccessToHost(true)
                 start()
             }
-            Testcontainers.exposeHostPorts(serverPort)
             if (hostName != DEFAULT_HOSTNAME) {
-                webDriverContainer.execInContainer('/bin/sh', '-c', "echo '$hostIp\t$hostName' | sudo tee -a /etc/hosts")
+                execInContainer('/bin/sh', '-c', "echo '$hostIp\t$hostName' | sudo tee -a /etc/hosts")
             }
             browser.driver = new RemoteWebDriver(webDriverContainer.seleniumAddress, new ChromeOptions())
             browser.driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30))
@@ -91,7 +98,7 @@ class ContainerGebSpec extends GebSpec {
     String getProtocol() {
         return DEFAULT_PROTOCOL
     }
-
+    
     /**
      * Returns the hostname that the browser will use to access the server under test.
      * <p>Defaults to {@code host.testcontainers.internal}.
@@ -100,6 +107,40 @@ class ContainerGebSpec extends GebSpec {
      */
     String getHostName() {
         return DEFAULT_HOSTNAME
+    }
+
+    // Convenience methods to interact with the container
+
+    Container.ExecResult execInContainer(String... command) {
+        return webDriverContainer.execInContainer(command)
+    }
+
+    Container.ExecResult execInContainer(Charset outputCharset, String... command) {
+        return webDriverContainer.execInContainer(outputCharset, command)
+    }
+
+    Container.ExecResult execInContainer(ExecConfig execConfig) {
+        return webDriverContainer.execInContainer(execConfig)
+    }
+
+    Container.ExecResult execInContainer(Charset outputCharset, ExecConfig execConfig) {
+        return webDriverContainer.execInContainer(outputCharset, execConfig)
+    }
+
+    void copyFileToContainer(MountableFile mountableFile, String containerPath) {
+        webDriverContainer.copyFileToContainer(mountableFile, containerPath)
+    }
+
+    void copyFileToContainer(Transferable transferable, String containerPath) {
+        webDriverContainer.copyFileToContainer(transferable, containerPath)
+    }
+
+    void copyFileFromContainer(String containerPath, String destinationPath) throws IOException, InterruptedException {
+        webDriverContainer.copyFileFromContainer(containerPath, destinationPath)
+    }
+    
+    String getLogs() {
+        return webDriverContainer.getLogs()
     }
 
     private static String getHostIp() {
