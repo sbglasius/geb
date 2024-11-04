@@ -21,14 +21,9 @@ import org.openqa.selenium.chrome.ChromeOptions
 import org.openqa.selenium.remote.RemoteWebDriver
 import org.testcontainers.Testcontainers
 import org.testcontainers.containers.BrowserWebDriverContainer
-import org.testcontainers.containers.Container
-import org.testcontainers.containers.ExecConfig
 import org.testcontainers.containers.PortForwardingContainer
-import org.testcontainers.images.builder.Transferable
-import org.testcontainers.utility.MountableFile
 import spock.lang.Shared
 
-import java.nio.charset.Charset
 import java.time.Duration
 
 /**
@@ -92,13 +87,13 @@ class ContainerGebSpec extends GebSpec {
      *
      * @see org.testcontainers.containers.ContainerState#execInContainer(java.lang.String ...)
      * @see org.testcontainers.containers.ContainerState#copyFileToContainer(org.testcontainers.utility.MountableFile, java.lang.String)
-     * @see org.testcontainers.containers.ContainerState#copyFileFromContainer(java.lang.String, java.lang.String) 
+     * @see org.testcontainers.containers.ContainerState#copyFileFromContainer(java.lang.String, java.lang.String)
      * @see org.testcontainers.containers.ContainerState
      */
     BrowserWebDriverContainer getContainer() {
         return webDriverContainer
     }
-    
+
     /**
      * Returns the protocol that the browser will use to access the server under test.
      * <p>Defaults to {@code http}.
@@ -118,7 +113,6 @@ class ContainerGebSpec extends GebSpec {
     String getHostName() {
         return DEFAULT_HOSTNAME
     }
-
 
     private static String getHostIp() {
         PortForwardingContainer.INSTANCE.network.get().ipAddress
