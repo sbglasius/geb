@@ -71,7 +71,7 @@ class ContainerGebSpec extends GebSpec {
                 start()
             }
             if (hostName != DEFAULT_HOSTNAME) {
-                execInContainer('/bin/sh', '-c', "echo '$hostIp\t$hostName' | sudo tee -a /etc/hosts")
+                webDriverContainer.execInContainer('/bin/sh', '-c', "echo '$hostIp\t$hostName' | sudo tee -a /etc/hosts")
             }
             browser.driver = new RemoteWebDriver(webDriverContainer.seleniumAddress, new ChromeOptions())
             browser.driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30))
@@ -87,6 +87,13 @@ class ContainerGebSpec extends GebSpec {
         webDriverContainer?.stop()
     }
 
+    /**
+     * Get access to container running the web-driver, for convenience to execInContainer, copyFileToContainer etc.
+     */
+    BrowserWebDriverContainer getContainer() {
+        return webDriverContainer
+    }
+    
     /**
      * Returns the protocol that the browser will use to access the server under test.
      * <p>Defaults to {@code http}.
@@ -107,39 +114,6 @@ class ContainerGebSpec extends GebSpec {
         return DEFAULT_HOSTNAME
     }
 
-    // Convenience methods to interact with the container
-
-    Container.ExecResult execInContainer(String... command) {
-        return webDriverContainer.execInContainer(command)
-    }
-
-    Container.ExecResult execInContainer(Charset outputCharset, String... command) {
-        return webDriverContainer.execInContainer(outputCharset, command)
-    }
-
-    Container.ExecResult execInContainer(ExecConfig execConfig) {
-        return webDriverContainer.execInContainer(execConfig)
-    }
-
-    Container.ExecResult execInContainer(Charset outputCharset, ExecConfig execConfig) {
-        return webDriverContainer.execInContainer(outputCharset, execConfig)
-    }
-
-    void copyFileToContainer(MountableFile mountableFile, String containerPath) {
-        webDriverContainer.copyFileToContainer(mountableFile, containerPath)
-    }
-
-    void copyFileToContainer(Transferable transferable, String containerPath) {
-        webDriverContainer.copyFileToContainer(transferable, containerPath)
-    }
-
-    void copyFileFromContainer(String containerPath, String destinationPath) throws IOException, InterruptedException {
-        webDriverContainer.copyFileFromContainer(containerPath, destinationPath)
-    }
-
-    String getLogs() {
-        return webDriverContainer.getLogs()
-    }
 
     private static String getHostIp() {
         PortForwardingContainer.INSTANCE.network.get().ipAddress
