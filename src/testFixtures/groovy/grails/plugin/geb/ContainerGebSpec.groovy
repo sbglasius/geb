@@ -89,6 +89,11 @@ class ContainerGebSpec extends GebSpec {
 
     /**
      * Get access to container running the web-driver, for convenience to execInContainer, copyFileToContainer etc.
+     *
+     * @see org.testcontainers.containers.ContainerState#execInContainer(java.lang.String ...)
+     * @see org.testcontainers.containers.ContainerState#copyFileToContainer(org.testcontainers.utility.MountableFile, java.lang.String)
+     * @see org.testcontainers.containers.ContainerState#copyFileFromContainer(java.lang.String, java.lang.String) 
+     * @see org.testcontainers.containers.ContainerState
      */
     BrowserWebDriverContainer getContainer() {
         return webDriverContainer
