@@ -22,12 +22,10 @@ import org.openqa.selenium.remote.RemoteWebDriver
 import org.testcontainers.Testcontainers
 import org.testcontainers.containers.BrowserWebDriverContainer
 import org.testcontainers.containers.Container
-import org.testcontainers.containers.ContainerState
 import org.testcontainers.containers.ExecConfig
 import org.testcontainers.containers.PortForwardingContainer
 import org.testcontainers.images.builder.Transferable
 import org.testcontainers.utility.MountableFile
-import org.testcontainers.utility.ThrowingFunction
 import spock.lang.Shared
 
 import java.nio.charset.Charset
@@ -98,7 +96,7 @@ class ContainerGebSpec extends GebSpec {
     String getProtocol() {
         return DEFAULT_PROTOCOL
     }
-    
+
     /**
      * Returns the hostname that the browser will use to access the server under test.
      * <p>Defaults to {@code host.testcontainers.internal}.
@@ -138,7 +136,7 @@ class ContainerGebSpec extends GebSpec {
     void copyFileFromContainer(String containerPath, String destinationPath) throws IOException, InterruptedException {
         webDriverContainer.copyFileFromContainer(containerPath, destinationPath)
     }
-    
+
     String getLogs() {
         return webDriverContainer.getLogs()
     }
