@@ -59,12 +59,12 @@ class ContainerGebSpec extends GebSpec {
                 throw new IllegalStateException('Test class must be annotated with @Integration for serverPort to be injected')
             }
             webDriverContainer = new BrowserWebDriverContainer()
+            Testcontainers.exposeHostPorts(serverPort)
             webDriverContainer.tap {
                 addExposedPort(serverPort)
                 withAccessToHost(true)
                 start()
             }
-            Testcontainers.exposeHostPorts(serverPort)
             if (hostName != DEFAULT_HOSTNAME) {
                 webDriverContainer.execInContainer('/bin/sh', '-c', "echo '$hostIp\t$hostName' | sudo tee -a /etc/hosts")
             }
@@ -80,6 +80,18 @@ class ContainerGebSpec extends GebSpec {
 
     def cleanupSpec() {
         webDriverContainer?.stop()
+    }
+
+    /**
+     * Get access to container running the web-driver, for convenience to execInContainer, copyFileToContainer etc.
+     *
+     * @see org.testcontainers.containers.ContainerState#execInContainer(java.lang.String ...)
+     * @see org.testcontainers.containers.ContainerState#copyFileToContainer(org.testcontainers.utility.MountableFile, java.lang.String)
+     * @see org.testcontainers.containers.ContainerState#copyFileFromContainer(java.lang.String, java.lang.String)
+     * @see org.testcontainers.containers.ContainerState
+     */
+    BrowserWebDriverContainer getContainer() {
+        return webDriverContainer
     }
 
     /**
