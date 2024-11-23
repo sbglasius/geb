@@ -51,13 +51,17 @@ class ContainerGebRecordingExtension implements IGlobalExtension {
                     listener.webDriverContainer = gebSpec.webDriverContainer.withRecordingMode(configuration.recordingMode, configuration.recordingDirectory, configuration.recordingFormat)
                 }
             }
+            spec.addCleanupInterceptor {
+                ContainerGebSpec gebSpec = it.instance as ContainerGebSpec
+                gebSpec.container?.stop()
+            }
 
             spec.addListener(listener)
         }
     }
 
     @TailRecursive
-    boolean isContainerizedGebSpec(SpecInfo spec) {
+    private boolean isContainerizedGebSpec(SpecInfo spec) {
         if(spec != null) {
             if(spec.filename.startsWith('ContainerGebSpec.')) {
                 return true

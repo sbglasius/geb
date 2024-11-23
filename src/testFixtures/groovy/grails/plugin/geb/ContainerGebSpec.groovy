@@ -92,10 +92,6 @@ abstract class ContainerGebSpec extends Specification implements ManagedGebTest,
         browser.baseUrl = "$protocol://$hostName:$port"
     }
 
-    def cleanupSpec() {
-        webDriverContainer?.stop()
-    }
-
     /**
      * Get access to container running the web-driver, for convenience to execInContainer, copyFileToContainer etc.
      *
