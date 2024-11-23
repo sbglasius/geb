@@ -53,6 +53,31 @@ This requires a [compatible container runtime](https://java.testcontainers.org/s
 If you choose to use the `ContainerGebSpec` class, as long as you have a compatible container runtime installed, you don't need to do anything else.
 Just run `./gradlew integrationTest` and a container will be started and configured to start a browser that can access your application under test.
 
+#### Recording
+By default, all failed tests will generate a video recording of the test execution. These recordings are saved to a `recordings` directory under the project's `build` directory.  
+
+The following system properties can be change to configure the recording behavior:
+* `grails.geb.recording.enabled`
+  * purpose: toggle for recording
+  * possible values: `true` or `false`
+
+
+* `grails.geb.recording.directory`
+    * purpose: the directory to save the recordings relative to the project directory
+    * defaults to `build/recordings`
+
+
+* `grails.geb.recording.mode`
+    * purpose: which tests to record via the enum `VncRecordingMode`
+    * possible values: `RECORD_ALL` or `RECORD_FAILING`
+    * defaults to `RECORD_FAILING`
+
+
+* `grails.geb.recording.format`
+    * purpose: sets the format of the recording
+    * possible values are `FLV` or `MP4`
+    * defaults to `MP4`
+
 ### GebSpec
 
 If you choose to extend `GebSpec`, you will need to have a [Selenium WebDriver](https://www.selenium.dev/documentation/webdriver/browsers/) installed that matches a browser you have installed on your system.

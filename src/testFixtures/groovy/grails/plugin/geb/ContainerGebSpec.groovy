@@ -72,6 +72,10 @@ abstract class ContainerGebSpec extends Specification implements ManagedGebTest,
 
     @PackageScope
     void initialize() {
+        if(webDriverContainer) {
+            return
+        }
+
         webDriverContainer = new BrowserWebDriverContainer()
         Testcontainers.exposeHostPorts(port)
         webDriverContainer.tap {
@@ -85,12 +89,6 @@ abstract class ContainerGebSpec extends Specification implements ManagedGebTest,
         WebDriver driver = new RemoteWebDriver(webDriverContainer.seleniumAddress, new ChromeOptions())
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30))
         browser.driver = driver
-    }
-
-    void setup() {
-        if (notInitialized) {
-            initialize()
-        }
         browser.baseUrl = "$protocol://$hostName:$port"
     }
 
@@ -163,9 +161,5 @@ abstract class ContainerGebSpec extends Specification implements ManagedGebTest,
 
     private boolean isHostNameChanged() {
         return hostNameFromContainer != DEFAULT_HOSTNAME_FROM_CONTAINER
-    }
-
-    private boolean isNotInitialized() {
-        webDriverContainer == null
     }
 }
