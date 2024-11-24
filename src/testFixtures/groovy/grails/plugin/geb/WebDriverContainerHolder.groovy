@@ -108,7 +108,7 @@ class WebDriverContainerHolder {
         browser.driver = driver
         browser.baseUrl = "${configuration.protocol}://${configuration.hostName}:${configuration.port}"
 
-        true
+        return true
     }
 
     private boolean isDefaultHostname() {
