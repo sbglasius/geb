@@ -72,7 +72,7 @@ abstract class ContainerGebSpec extends Specification implements ManagedGebTest,
 
     @PackageScope
     void initialize() {
-        if (webDriverContainer) {
+        if (initialized) {
             return
         }
 
@@ -157,5 +157,9 @@ abstract class ContainerGebSpec extends Specification implements ManagedGebTest,
 
     private boolean isHostNameChanged() {
         return hostNameFromContainer != DEFAULT_HOSTNAME_FROM_CONTAINER
+    }
+
+    private boolean isInitialized() {
+        webDriverContainer == null
     }
 }
