@@ -33,6 +33,7 @@ import java.time.LocalDateTime
 @Slf4j
 @CompileStatic
 class ContainerGebRecordingExtension implements IGlobalExtension {
+
     WebDriverContainerHolder holder
 
     @Override
@@ -51,7 +52,7 @@ class ContainerGebRecordingExtension implements IGlobalExtension {
             ContainerGebTestListener listener = new ContainerGebTestListener(holder, spec, LocalDateTime.now())
             spec.addSetupInterceptor {
                 holder.reinitialize(it)
-                (it.sharedInstance as ContainerGebSpec).webDriverContainer = holder.current
+                (it.sharedInstance as ContainerGebSpec).webDriverContainer = holder.currentContainer
             }
 
             spec.addListener(listener)
@@ -71,7 +72,7 @@ class ContainerGebRecordingExtension implements IGlobalExtension {
 
     private static void validateContainerGebSpec(SpecInfo specInfo) {
         if (!specInfo.annotations.find { it.annotationType() == Integration }) {
-            throw new IllegalArgumentException("ContainerGebSpec classes must be annotated with @Integration")
+            throw new IllegalArgumentException('ContainerGebSpec classes must be annotated with @Integration')
         }
     }
 }

@@ -36,24 +36,25 @@ import java.time.Duration
  * @since 5.0
  */
 class WebDriverContainerHolder {
+
     RecordingSettings recordingSettings
     WebDriverContainerConfiguration configuration
-    BrowserWebDriverContainer current
+    BrowserWebDriverContainer currentContainer
 
     WebDriverContainerHolder(RecordingSettings recordingSettings) {
         this.recordingSettings = recordingSettings
     }
 
     boolean isInitialized() {
-        current != null
+        currentContainer != null
     }
 
     boolean stop() {
-        if (!current) {
+        if (!currentContainer) {
             return false
         }
-        current.stop()
-        current = null
+        currentContainer.stop()
+        currentContainer = null
         configuration = null
         return true
     }
@@ -71,36 +72,39 @@ class WebDriverContainerHolder {
     }
 
     boolean reinitialize(IMethodInvocation invocation) {
-        WebDriverContainerConfiguration specConfiguration = new WebDriverContainerConfiguration(getPort(invocation), invocation.getSpec())
+        WebDriverContainerConfiguration specConfiguration = new WebDriverContainerConfiguration(
+                getPort(invocation),
+                invocation.getSpec()
+        )
         if (matchesCurrentContainerConfiguration(specConfiguration)) {
             return false
         }
 
-        if (isInitialized()) {
+        if (initialized) {
             stop()
         }
 
         configuration = specConfiguration
-        current = new BrowserWebDriverContainer()
+        currentContainer = new BrowserWebDriverContainer()
         Testcontainers.exposeHostPorts(configuration.port)
-        current.tap {
+        currentContainer.tap {
             addExposedPort(configuration.port)
             withAccessToHost(true)
             start()
         }
-        if (!isDefaultHostname()) {
-            current.execInContainer('/bin/sh', '-c', "echo '$hostIp\t${configuration.hostName}' | sudo tee -a /etc/hosts")
+        if (hostnameChanged) {
+            currentContainer.execInContainer('/bin/sh', '-c', "echo '$hostIp\t${configuration.hostName}' | sudo tee -a /etc/hosts")
         }
 
-        if (recordingSettings.recordingMode != BrowserWebDriverContainer.VncRecordingMode.SKIP) {
-            current = current.withRecordingMode(
+        if (recordingSettings.recordingEnabled) {
+            currentContainer = currentContainer.withRecordingMode(
                     recordingSettings.recordingMode,
                     recordingSettings.recordingDirectory,
                     recordingSettings.recordingFormat
             )
         }
 
-        WebDriver driver = new RemoteWebDriver(current.seleniumAddress, new ChromeOptions())
+        WebDriver driver = new RemoteWebDriver(currentContainer.seleniumAddress, new ChromeOptions())
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30))
 
         // Update the browser to use this container
@@ -111,22 +115,25 @@ class WebDriverContainerHolder {
         return true
     }
 
-    private boolean isDefaultHostname() {
-        configuration.hostName == ContainerGebConfiguration.DEFAULT_HOSTNAME_FROM_CONTAINER
+    private boolean getHostnameChanged() {
+        configuration.hostName != ContainerGebConfiguration.DEFAULT_HOSTNAME_FROM_CONTAINER
     }
 
     private String getHostIp() {
-        current.getContainerInfo().getNetworkSettings().getNetworks().entrySet().first().value.ipAddress
+        currentContainer.getContainerInfo().getNetworkSettings().getNetworks().entrySet().first().value.ipAddress
     }
 
     @EqualsAndHashCode
     private static class WebDriverContainerConfiguration {
+
         String protocol
         String hostName
         int port
 
         WebDriverContainerConfiguration(int port, SpecInfo spec) {
-            ContainerGebConfiguration configuration = spec.annotations.find { it.annotationType() == ContainerGebConfiguration } as ContainerGebConfiguration
+            ContainerGebConfiguration configuration = spec.annotations.find {
+                it.annotationType() == ContainerGebConfiguration
+            } as ContainerGebConfiguration
 
             protocol = configuration?.protocol() ?: ContainerGebConfiguration.DEFAULT_PROTOCOL
             hostName = configuration?.hostName() ?: ContainerGebConfiguration.DEFAULT_HOSTNAME_FROM_CONTAINER

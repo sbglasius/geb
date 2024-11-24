@@ -21,6 +21,9 @@ import groovy.util.logging.Slf4j
 import org.testcontainers.containers.BrowserWebDriverContainer
 import org.testcontainers.containers.VncRecordingContainer
 
+import static org.testcontainers.containers.BrowserWebDriverContainer.*
+import static org.testcontainers.containers.VncRecordingContainer.*
+
 /**
  * Handles parsing various recording configuration used by {@link grails.plugin.geb.ContainerGebRecordingExtension}
  *
@@ -31,28 +34,35 @@ import org.testcontainers.containers.VncRecordingContainer
 @CompileStatic
 class RecordingSettings {
 
+    private static VncRecordingMode DEFAULT_RECORDING_MODE = VncRecordingMode.SKIP
+    private static VncRecordingFormat DEFAULT_RECORDING_FORMAT = VncRecordingFormat.MP4
+
     String recordingDirectoryName
-    BrowserWebDriverContainer.VncRecordingMode recordingMode
-    VncRecordingContainer.VncRecordingFormat recordingFormat
+	VncRecordingMode recordingMode
+	VncRecordingFormat recordingFormat
 
     RecordingSettings() {
         recordingDirectoryName = System.getProperty('grails.geb.recording.directory', 'build/recordings')
-        recordingMode = BrowserWebDriverContainer.VncRecordingMode.valueOf(System.getProperty('grails.geb.recording.mode', BrowserWebDriverContainer.VncRecordingMode.RECORD_FAILING.name()))
-        recordingFormat = VncRecordingContainer.VncRecordingFormat.valueOf(System.getProperty('grails.geb.recording.format', VncRecordingContainer.VncRecordingFormat.MP4.name()))
+        recordingMode = VncRecordingMode.valueOf(System.getProperty('grails.geb.recording.mode', DEFAULT_RECORDING_MODE.name()))
+        recordingFormat = VncRecordingFormat.valueOf(System.getProperty('grails.geb.recording.format', DEFAULT_RECORDING_FORMAT.name()))
+    }
+
+    boolean isRecordingEnabled() {
+        recordingMode != VncRecordingMode.SKIP
     }
 
     @Memoized
     File getRecordingDirectory() {
-        if (recordingMode == BrowserWebDriverContainer.VncRecordingMode.SKIP) {
+        if (!recordingEnabled) {
             return null
         }
 
         File recordingDirectory = new File(recordingDirectoryName)
         if (!recordingDirectory.exists()) {
-            log.info("Could not find `{}` directory for recording.  Creating...", recordingDirectoryName)
+            log.info('Could not find `{}` Directory for recording. Creating...', recordingDirectoryName)
             recordingDirectory.mkdirs()
         } else if (!recordingDirectory.isDirectory()) {
-            throw new IllegalStateException("Recording Directory name expected to be `${recordingDirectoryName}, but found file instead.")
+            throw new IllegalStateException("Configured recording directory '${recordingDirectory}' is expected to be a directory, but found file instead.")
         }
 
         return recordingDirectory

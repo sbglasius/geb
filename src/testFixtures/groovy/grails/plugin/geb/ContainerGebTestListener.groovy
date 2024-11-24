@@ -20,7 +20,6 @@ import org.spockframework.runtime.AbstractRunListener
 import org.spockframework.runtime.model.ErrorInfo
 import org.spockframework.runtime.model.IterationInfo
 import org.spockframework.runtime.model.SpecInfo
-import org.testcontainers.containers.BrowserWebDriverContainer
 
 import java.time.LocalDateTime
 
@@ -49,7 +48,7 @@ class ContainerGebTestListener extends AbstractRunListener {
 
     @Override
     void afterIteration(IterationInfo iteration) {
-        containerHolder.current.afterTest(
+        containerHolder.currentContainer.afterTest(
                 new ContainerGebTestDescription(iteration, runDate),
                 Optional.ofNullable(errorInfo?.exception)
         )
