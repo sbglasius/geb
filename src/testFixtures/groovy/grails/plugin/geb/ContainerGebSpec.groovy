@@ -44,19 +44,17 @@ import java.time.Duration
  *   </li>
  * </ul>
  *
+ * @see grails.plugin.geb.ContainerGebConfiguration for how to customize the container's connection information
+ *
  * @author Søren Berg Glasius
  * @author Mattias Reichel
+ * @author James Daugherty
  * @since 5.0
  */
 @DynamicallyDispatchesToBrowser
 abstract class ContainerGebSpec extends Specification implements ManagedGebTest, ContainerAwareDownloadSupport {
 
-    private static final String DEFAULT_HOSTNAME_FROM_CONTAINER = 'host.testcontainers.internal'
     private static final String DEFAULT_HOSTNAME_FROM_HOST = 'localhost'
-    private static final String DEFAULT_PROTOCOL = 'http'
-
-    private String hostNameFromContainer = DEFAULT_HOSTNAME_FROM_CONTAINER
-
     boolean reportingEnabled = false
 
     @Override
@@ -69,28 +67,6 @@ abstract class ContainerGebSpec extends Specification implements ManagedGebTest,
 
     @Shared
     BrowserWebDriverContainer webDriverContainer
-
-    @PackageScope
-    void initialize() {
-        if (initialized) {
-            return
-        }
-
-        webDriverContainer = new BrowserWebDriverContainer()
-        Testcontainers.exposeHostPorts(port)
-        webDriverContainer.tap {
-            addExposedPort(this.port)
-            withAccessToHost(true)
-            start()
-        }
-        if (hostNameChanged) {
-            webDriverContainer.execInContainer('/bin/sh', '-c', "echo '$hostIp\t$hostName' | sudo tee -a /etc/hosts")
-        }
-        WebDriver driver = new RemoteWebDriver(webDriverContainer.seleniumAddress, new ChromeOptions())
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30))
-        browser.driver = driver
-        browser.baseUrl = "$protocol://$hostName:$port"
-    }
 
     /**
      * Get access to container running the web-driver, for convenience to execInContainer, copyFileToContainer etc.
@@ -105,61 +81,20 @@ abstract class ContainerGebSpec extends Specification implements ManagedGebTest,
     }
 
     /**
-     * Returns the protocol that the browser will use to access the server under test.
-     * <p>Defaults to {@code http}.
-     *
-     * @return the protocol for accessing the server under test
-     */
-    String getProtocol() {
-        return DEFAULT_PROTOCOL
-    }
-
-    /**
-     * Returns the hostname that the browser will use to access the server under test.
-     * <p>Defaults to {@code host.testcontainers.internal}.
-     * <p>This is useful when the server under test needs to be accessed with a certain hostname.
-     *
-     * @return the hostname for accessing the server under test
-     */
-    String getHostName() {
-        return hostNameFromContainer
-    }
-
-    void setHostName(String hostName) {
-        hostNameFromContainer = hostName
-    }
-
-    /**
      * Returns the hostname that the server under test is available on from the host.
      * <p>This is useful when using any of the {@code download*()} methods as they will connect from the host,
      * and not from within the container.
-     * <p>Defaults to {@code localhost}. If the value returned by {@code getHostName()}
-     * is different from the default, this method will return the same value same as {@code getHostName()}.
+     * <p>Defaults to {@code localhost}. If the value returned by {@code webDriverContainer.getHost()}
+     * is different from the default, this method will return the same value same as {@code webDriverContainer.getHost()}.
      *
      * @return the hostname for accessing the server under test from the host
      */
     @Override
     String getHostNameFromHost() {
-        return hostNameChanged ? hostName : DEFAULT_HOSTNAME_FROM_HOST
-    }
-
-    int getPort() {
-        try {
-            return (int) getProperty('serverPort')
-        } catch (Exception ignore) {
-            throw new IllegalStateException('Test class must be annotated with @Integration for serverPort to be injected')
-        }
-    }
-
-    private static String getHostIp() {
-        PortForwardingContainer.INSTANCE.network.get().ipAddress
+        return hostNameChanged ? webDriverContainer.host : DEFAULT_HOSTNAME_FROM_HOST
     }
 
     private boolean isHostNameChanged() {
-        return hostNameFromContainer != DEFAULT_HOSTNAME_FROM_CONTAINER
-    }
-
-    private boolean isInitialized() {
-        webDriverContainer == null
+        return webDriverContainer.host != ContainerGebConfiguration.DEFAULT_HOSTNAME_FROM_CONTAINER
     }
 }

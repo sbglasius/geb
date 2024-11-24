@@ -15,46 +15,34 @@
  */
 package grails.plugin.geb
 
-import groovy.transform.CompileStatic
-import groovy.transform.Memoized
-import groovy.util.logging.Slf4j
-import org.testcontainers.containers.BrowserWebDriverContainer
-import org.testcontainers.containers.VncRecordingContainer
+import java.lang.annotation.ElementType
+import java.lang.annotation.Retention
+import java.lang.annotation.RetentionPolicy
+import java.lang.annotation.Target
 
 /**
- * Handles parsing various configuration used by {@link grails.plugin.geb.ContainerGebRecordingExtension}
+ * Can be used to configure the protocol and hostname that the container's browser will use
  *
  * @author James Daugherty
  * @since 5.0
  */
-@Slf4j
-@CompileStatic
-class ContainerGebConfiguration {
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@interface ContainerGebConfiguration {
 
-    String recordingDirectoryName
-    BrowserWebDriverContainer.VncRecordingMode recordingMode
-    VncRecordingContainer.VncRecordingFormat recordingFormat
+    static final String DEFAULT_HOSTNAME_FROM_CONTAINER = 'host.testcontainers.internal'
+    static final String DEFAULT_PROTOCOL = 'http'
 
-    ContainerGebConfiguration() {
-        recordingDirectoryName = System.getProperty('grails.geb.recording.directory', 'build/recordings')
-        recordingMode = BrowserWebDriverContainer.VncRecordingMode.valueOf(System.getProperty('grails.geb.recording.mode', BrowserWebDriverContainer.VncRecordingMode.RECORD_FAILING.name()))
-        recordingFormat = VncRecordingContainer.VncRecordingFormat.valueOf(System.getProperty('grails.geb.recording.format', VncRecordingContainer.VncRecordingFormat.MP4.name()))
-    }
+    /**
+     * The protocol that the container's browser will use to access the server under test.
+     * <p>Defaults to {@code http}.
+     */
+    String protocol() default DEFAULT_PROTOCOL
 
-    @Memoized
-    File getRecordingDirectory() {
-        if (recordingMode == BrowserWebDriverContainer.VncRecordingMode.SKIP) {
-            return null
-        }
-
-        File recordingDirectory = new File(recordingDirectoryName)
-        if (!recordingDirectory.exists()) {
-            log.info("Could not find `{}` directory for recording.  Creating...", recordingDirectoryName)
-            recordingDirectory.mkdirs()
-        } else if (!recordingDirectory.isDirectory()) {
-            throw new IllegalStateException("Recording Directory name expected to be `${recordingDirectoryName}, but found file instead.")
-        }
-
-        return recordingDirectory
-    }
+    /**
+     * The hostname that the container's browser will use to access the server under test.
+     * <p>Defaults to {@code host.testcontainers.internal}.
+     * <p>This is useful when the server under test needs to be accessed with a certain hostname.
+     */
+    String hostName() default DEFAULT_HOSTNAME_FROM_CONTAINER
 }

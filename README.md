@@ -53,6 +53,10 @@ This requires a [compatible container runtime](https://java.testcontainers.org/s
 If you choose to use the `ContainerGebSpec` class, as long as you have a compatible container runtime installed, you don't need to do anything else.
 Just run `./gradlew integrationTest` and a container will be started and configured to start a browser that can access your application under test.
 
+#### Custom Host Configuration
+
+The annotation `ContainerGebConfiguration` exists to customize the connection the container will use to access the application under test. The annotation is not required and `ContainerGebSpec` will use the default values in this annotation if it's not present.
+
 #### Recording
 By default, all failed tests will generate a video recording of the test execution. These recordings are saved to a `recordings` directory under the project's `build` directory.  
 

@@ -36,19 +36,20 @@ import java.time.LocalDateTime
 @CompileStatic
 class ContainerGebTestListener extends AbstractRunListener {
 
-    BrowserWebDriverContainer webDriverContainer
+    WebDriverContainerHolder containerHolder
     ErrorInfo errorInfo
     SpecInfo spec
     LocalDateTime runDate
 
-    ContainerGebTestListener(SpecInfo spec, LocalDateTime runDate) {
+    ContainerGebTestListener(WebDriverContainerHolder containerHolder, SpecInfo spec, LocalDateTime runDate) {
         this.spec = spec
         this.runDate = runDate
+        this.containerHolder = containerHolder
     }
 
     @Override
     void afterIteration(IterationInfo iteration) {
-        webDriverContainer.afterTest(
+        containerHolder.current.afterTest(
                 new ContainerGebTestDescription(iteration, runDate),
                 Optional.ofNullable(errorInfo?.exception)
         )

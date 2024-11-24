@@ -15,12 +15,12 @@
  */
 package grails.plugin.geb
 
+import grails.testing.mixin.integration.Integration
 import groovy.transform.CompileStatic
 import groovy.transform.TailRecursive
 import groovy.util.logging.Slf4j
 import org.spockframework.runtime.extension.IGlobalExtension
 import org.spockframework.runtime.model.SpecInfo
-import org.testcontainers.containers.BrowserWebDriverContainer
 
 import java.time.LocalDateTime
 
@@ -33,33 +33,25 @@ import java.time.LocalDateTime
 @Slf4j
 @CompileStatic
 class ContainerGebRecordingExtension implements IGlobalExtension {
-    ContainerGebConfiguration configuration
+    WebDriverContainerHolder holder
 
     @Override
     void start() {
-        configuration = new ContainerGebConfiguration()
+        holder = new WebDriverContainerHolder(new RecordingSettings())
+        addShutdownHook {
+            holder.stop()
+        }
     }
 
     @Override
     void visitSpec(SpecInfo spec) {
         if (isContainerGebSpec(spec)) {
-            ContainerGebTestListener listener = new ContainerGebTestListener(spec, LocalDateTime.now())
-            // TODO: We should initialize the web driver container once for all geb tests so we don't have to spin it up & down.
+            validateContainerGebSpec(spec)
+
+            ContainerGebTestListener listener = new ContainerGebTestListener(holder, spec, LocalDateTime.now())
             spec.addSetupInterceptor {
-                ContainerGebSpec gebSpec = it.instance as ContainerGebSpec
-                gebSpec.initialize()
-                if (configuration.recordingMode != BrowserWebDriverContainer.VncRecordingMode.SKIP) {
-                    listener.webDriverContainer = gebSpec.webDriverContainer
-                            .withRecordingMode(
-                                    configuration.recordingMode,
-                                    configuration.recordingDirectory,
-                                    configuration.recordingFormat
-                            )
-                }
-            }
-            spec.addCleanupInterceptor {
-                ContainerGebSpec gebSpec = it.instance as ContainerGebSpec
-                gebSpec.container?.stop()
+                holder.reinitialize(it)
+                (it.sharedInstance as ContainerGebSpec).webDriverContainer = holder.current
             }
 
             spec.addListener(listener)
@@ -76,4 +68,11 @@ class ContainerGebRecordingExtension implements IGlobalExtension {
         }
         return false
     }
+
+    private static void validateContainerGebSpec(SpecInfo specInfo) {
+        if (!specInfo.annotations.find { it.annotationType() == Integration }) {
+            throw new IllegalArgumentException("ContainerGebSpec classes must be annotated with @Integration")
+        }
+    }
 }
+
