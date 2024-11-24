@@ -16,6 +16,7 @@
 package grails.plugin.geb
 
 import geb.Browser
+import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.chrome.ChromeOptions
@@ -35,6 +36,7 @@ import java.time.Duration
  * @author James Daugherty
  * @since 5.0
  */
+@CompileStatic
 class WebDriverContainerHolder {
 
     RecordingSettings recordingSettings
@@ -49,14 +51,13 @@ class WebDriverContainerHolder {
         currentContainer != null
     }
 
-    boolean stop() {
+    void stop() {
         if (!currentContainer) {
-            return false
+            return
         }
         currentContainer.stop()
         currentContainer = null
         configuration = null
-        return true
     }
 
     boolean matchesCurrentContainerConfiguration(WebDriverContainerConfiguration specConfiguration) {
@@ -123,6 +124,7 @@ class WebDriverContainerHolder {
         currentContainer.getContainerInfo().getNetworkSettings().getNetworks().entrySet().first().value.ipAddress
     }
 
+    @CompileStatic
     @EqualsAndHashCode
     private static class WebDriverContainerConfiguration {
 

@@ -18,11 +18,9 @@ package grails.plugin.geb
 import groovy.transform.CompileStatic
 import groovy.transform.Memoized
 import groovy.util.logging.Slf4j
-import org.testcontainers.containers.BrowserWebDriverContainer
-import org.testcontainers.containers.VncRecordingContainer
 
-import static org.testcontainers.containers.BrowserWebDriverContainer.*
-import static org.testcontainers.containers.VncRecordingContainer.*
+import static org.testcontainers.containers.BrowserWebDriverContainer.VncRecordingMode
+import static org.testcontainers.containers.VncRecordingContainer.VncRecordingFormat
 
 /**
  * Handles parsing various recording configuration used by {@link grails.plugin.geb.ContainerGebRecordingExtension}
@@ -43,8 +41,12 @@ class RecordingSettings {
 
     RecordingSettings() {
         recordingDirectoryName = System.getProperty('grails.geb.recording.directory', 'build/recordings')
-        recordingMode = VncRecordingMode.valueOf(System.getProperty('grails.geb.recording.mode', DEFAULT_RECORDING_MODE.name()))
-        recordingFormat = VncRecordingFormat.valueOf(System.getProperty('grails.geb.recording.format', DEFAULT_RECORDING_FORMAT.name()))
+        recordingMode = VncRecordingMode.valueOf(
+                System.getProperty('grails.geb.recording.mode', DEFAULT_RECORDING_MODE.name())
+        )
+        recordingFormat = VncRecordingFormat.valueOf(
+                System.getProperty('grails.geb.recording.format', DEFAULT_RECORDING_FORMAT.name())
+        )
     }
 
     boolean isRecordingEnabled() {

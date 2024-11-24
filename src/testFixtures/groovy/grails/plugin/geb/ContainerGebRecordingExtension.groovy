@@ -46,9 +46,7 @@ class ContainerGebRecordingExtension implements IGlobalExtension {
 
     @Override
     void visitSpec(SpecInfo spec) {
-        if (isContainerGebSpec(spec)) {
-            validateContainerGebSpec(spec)
-
+        if (isContainerGebSpec(spec) && validateContainerGebSpec(spec)) {
             ContainerGebTestListener listener = new ContainerGebTestListener(holder, spec, LocalDateTime.now())
             spec.addSetupInterceptor {
                 holder.reinitialize(it)
@@ -70,10 +68,12 @@ class ContainerGebRecordingExtension implements IGlobalExtension {
         return false
     }
 
-    private static void validateContainerGebSpec(SpecInfo specInfo) {
+    private static boolean validateContainerGebSpec(SpecInfo specInfo) {
         if (!specInfo.annotations.find { it.annotationType() == Integration }) {
             throw new IllegalArgumentException('ContainerGebSpec classes must be annotated with @Integration')
         }
+
+        return true
     }
 }
 
