@@ -18,17 +18,9 @@ package grails.plugin.geb
 import geb.test.GebTestManager
 import geb.test.ManagedGebTest
 import geb.transform.DynamicallyDispatchesToBrowser
-import groovy.transform.PackageScope
-import org.openqa.selenium.WebDriver
-import org.openqa.selenium.chrome.ChromeOptions
-import org.openqa.selenium.remote.RemoteWebDriver
-import org.testcontainers.Testcontainers
 import org.testcontainers.containers.BrowserWebDriverContainer
-import org.testcontainers.containers.PortForwardingContainer
 import spock.lang.Shared
 import spock.lang.Specification
-
-import java.time.Duration
 
 /**
  * A {@link geb.spock.GebSpec GebSpec} that leverages Testcontainers to run the browser inside a container.
