@@ -52,10 +52,7 @@ class WebDriverContainerHolder {
     }
 
     void stop() {
-        if (!currentContainer) {
-            return
-        }
-        currentContainer.stop()
+        currentContainer?.stop()
         currentContainer = null
         configuration = null
     }
