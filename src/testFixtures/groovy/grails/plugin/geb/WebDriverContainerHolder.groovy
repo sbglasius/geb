@@ -112,7 +112,7 @@ class WebDriverContainerHolder {
     }
 
     private boolean isDefaultHostname() {
-        return configuration.hostName == ContainerGebConfiguration.DEFAULT_HOSTNAME_FROM_CONTAINER
+        configuration.hostName == ContainerGebConfiguration.DEFAULT_HOSTNAME_FROM_CONTAINER
     }
 
     private String getHostIp() {
