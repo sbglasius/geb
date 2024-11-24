@@ -38,6 +38,6 @@ class ContainerGebTestDescription implements TestDescription {
     ContainerGebTestDescription(IterationInfo testInfo, LocalDateTime runDate) {
         testId = testInfo.displayName
         String safeName = testId.replaceAll('\\W+', '_')
-        filesystemFriendlyName = "${DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(runDate)}_${safeName}"
+        filesystemFriendlyName = "${DateTimeFormatter.ofPattern('yyyyMMdd_HHmmss').format(runDate)}_${safeName}"
     }
 }
