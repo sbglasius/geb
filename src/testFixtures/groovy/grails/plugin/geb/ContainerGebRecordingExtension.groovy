@@ -20,6 +20,7 @@ import groovy.transform.TailRecursive
 import groovy.util.logging.Slf4j
 import org.spockframework.runtime.extension.IGlobalExtension
 import org.spockframework.runtime.model.SpecInfo
+import org.testcontainers.containers.BrowserWebDriverContainer
 
 import java.time.LocalDateTime
 
@@ -27,7 +28,7 @@ import java.time.LocalDateTime
  * A Spock Extension that manages the Testcontainers lifecycle for a {@link grails.plugin.geb.ContainerGebSpec}
  *
  * @author James Daugherty
- * @since 5.0.0
+ * @since 5.0
  */
 @Slf4j
 @CompileStatic
@@ -41,14 +42,19 @@ class ContainerGebRecordingExtension implements IGlobalExtension {
 
     @Override
     void visitSpec(SpecInfo spec) {
-        if (isContainerizedGebSpec(spec)) {
+        if (isContainerGebSpec(spec)) {
             ContainerGebTestListener listener = new ContainerGebTestListener(spec, LocalDateTime.now())
             // TODO: We should initialize the web driver container once for all geb tests so we don't have to spin it up & down.
             spec.addSetupInterceptor {
                 ContainerGebSpec gebSpec = it.instance as ContainerGebSpec
                 gebSpec.initialize()
-                if(configuration.recording) {
-                    listener.webDriverContainer = gebSpec.webDriverContainer.withRecordingMode(configuration.recordingMode, configuration.recordingDirectory, configuration.recordingFormat)
+                if (configuration.recordingMode != BrowserWebDriverContainer.VncRecordingMode.SKIP) {
+                    listener.webDriverContainer = gebSpec.webDriverContainer
+                            .withRecordingMode(
+                                    configuration.recordingMode,
+                                    configuration.recordingDirectory,
+                                    configuration.recordingFormat
+                            )
                 }
             }
             spec.addCleanupInterceptor {
@@ -61,13 +67,12 @@ class ContainerGebRecordingExtension implements IGlobalExtension {
     }
 
     @TailRecursive
-    private boolean isContainerizedGebSpec(SpecInfo spec) {
-        if(spec != null) {
-            if(spec.filename.startsWith('ContainerGebSpec.')) {
+    private boolean isContainerGebSpec(SpecInfo spec) {
+        if (spec != null) {
+            if (spec.filename.startsWith('ContainerGebSpec.')) {
                 return true
             }
-
-            return isContainerizedGebSpec(spec.superSpec)
+            return isContainerGebSpec(spec.superSpec)
         }
         return false
     }

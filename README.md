@@ -57,20 +57,16 @@ Just run `./gradlew integrationTest` and a container will be started and configu
 By default, all failed tests will generate a video recording of the test execution. These recordings are saved to a `recordings` directory under the project's `build` directory.  
 
 The following system properties can be change to configure the recording behavior:
-* `grails.geb.recording.enabled`
-  * purpose: toggle for recording
-  * possible values: `true` or `false`
+
+* `grails.geb.recording.mode`
+  * purpose: which tests to record
+  * possible values: `SKIP`, `RECORD_ALL`, or `RECORD_FAILING`
+  * defaults to `RECORD_FAILING`
 
 
 * `grails.geb.recording.directory`
     * purpose: the directory to save the recordings relative to the project directory
     * defaults to `build/recordings`
-
-
-* `grails.geb.recording.mode`
-    * purpose: which tests to record via the enum `VncRecordingMode`
-    * possible values: `RECORD_ALL` or `RECORD_FAILING`
-    * defaults to `RECORD_FAILING`
 
 
 * `grails.geb.recording.format`

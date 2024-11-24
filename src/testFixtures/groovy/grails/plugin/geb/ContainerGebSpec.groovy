@@ -46,7 +46,7 @@ import java.time.Duration
  *
  * @author Søren Berg Glasius
  * @author Mattias Reichel
- * @since 5.0.0
+ * @since 5.0
  */
 @DynamicallyDispatchesToBrowser
 abstract class ContainerGebSpec extends Specification implements ManagedGebTest, ContainerAwareDownloadSupport {
@@ -72,7 +72,7 @@ abstract class ContainerGebSpec extends Specification implements ManagedGebTest,
 
     @PackageScope
     void initialize() {
-        if(webDriverContainer) {
+        if (webDriverContainer) {
             return
         }
 

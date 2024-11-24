@@ -35,7 +35,7 @@ import java.util.regex.Pattern
  * setups, ensuring the host network context is used for download requests.</p>
  *
  * @author Mattias Reichel
- * @since 5.0.0
+ * @since 5.0
  */
 @CompileStatic
 @SelfType(ContainerGebSpec)
@@ -45,6 +45,7 @@ trait ContainerAwareDownloadSupport implements DownloadSupport {
     private final DownloadSupport downloadSupport = new LocalhostDownloadSupport(browser, this)
 
     abstract Browser getBrowser()
+
     abstract String getHostNameFromHost()
 
     private static class LocalhostDownloadSupport extends DefaultDownloadSupport {
