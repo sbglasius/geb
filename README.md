@@ -58,14 +58,12 @@ Just run `./gradlew integrationTest` and a container will be started and configu
 The annotation `ContainerGebConfiguration` exists to customize the connection the container will use to access the application under test. The annotation is not required and `ContainerGebSpec` will use the default values in this annotation if it's not present.
 
 #### Recording
-By default, all failed tests will generate a video recording of the test execution. These recordings are saved to a `recordings` directory under the project's `build` directory.  
-
-The following system properties can be change to configure the recording behavior:
+By default, no test recording will be performed.  Here are the system properties available to change the recording behavior:
 
 * `grails.geb.recording.mode`
   * purpose: which tests to record
   * possible values: `SKIP`, `RECORD_ALL`, or `RECORD_FAILING`
-  * defaults to `RECORD_FAILING`
+  * defaults to `SKIP`
 
 
 * `grails.geb.recording.directory`
