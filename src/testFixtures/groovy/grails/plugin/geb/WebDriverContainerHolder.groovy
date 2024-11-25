@@ -86,6 +86,13 @@ class WebDriverContainerHolder {
 
         configuration = specConfiguration
         currentContainer = new BrowserWebDriverContainer()
+        if (recordingSettings.recordingEnabled) {
+            currentContainer = currentContainer.withRecordingMode(
+                    recordingSettings.recordingMode,
+                    recordingSettings.recordingDirectory,
+                    recordingSettings.recordingFormat
+            )
+        }
         Testcontainers.exposeHostPorts(configuration.port)
         currentContainer.tap {
             addExposedPort(configuration.port)
@@ -94,14 +101,6 @@ class WebDriverContainerHolder {
         }
         if (hostnameChanged) {
             currentContainer.execInContainer('/bin/sh', '-c', "echo '$hostIp\t${configuration.hostName}' | sudo tee -a /etc/hosts")
-        }
-
-        if (recordingSettings.recordingEnabled) {
-            currentContainer = currentContainer.withRecordingMode(
-                    recordingSettings.recordingMode,
-                    recordingSettings.recordingDirectory,
-                    recordingSettings.recordingFormat
-            )
         }
 
         WebDriver driver = new RemoteWebDriver(currentContainer.seleniumAddress, new ChromeOptions())

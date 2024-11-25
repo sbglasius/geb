@@ -58,7 +58,13 @@ Just run `./gradlew integrationTest` and a container will be started and configu
 The annotation `ContainerGebConfiguration` exists to customize the connection the container will use to access the application under test. The annotation is not required and `ContainerGebSpec` will use the default values in this annotation if it's not present.
 
 #### Recording
-By default, no test recording will be performed.  Here are the system properties available to change the recording behavior:
+
+By default, no test recording will be performed.  Various system properties exist to change the recording behavior.  To set them, you can set them in your `build.gradle` file like so:
+
+    tasks.withType(Test) {
+      useJUnitPlatform()
+      systemProperty 'grails.geb.recording.mode', 'RECORD_ALL'
+    }
 
 * `grails.geb.recording.mode`
   * purpose: which tests to record

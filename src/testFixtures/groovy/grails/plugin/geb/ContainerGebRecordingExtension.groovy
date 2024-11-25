@@ -45,6 +45,11 @@ class ContainerGebRecordingExtension implements IGlobalExtension {
     }
 
     @Override
+    void stop() {
+        holder.stop()
+    }
+
+    @Override
     void visitSpec(SpecInfo spec) {
         if (isContainerGebSpec(spec) && validateContainerGebSpec(spec)) {
             ContainerGebTestListener listener = new ContainerGebTestListener(holder, spec, LocalDateTime.now())
