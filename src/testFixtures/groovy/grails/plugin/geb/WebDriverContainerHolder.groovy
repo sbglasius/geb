@@ -15,6 +15,7 @@
  */
 package grails.plugin.geb
 
+import com.github.dockerjava.api.model.ContainerNetwork
 import geb.Browser
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
@@ -25,6 +26,7 @@ import org.spockframework.runtime.extension.IMethodInvocation
 import org.spockframework.runtime.model.SpecInfo
 import org.testcontainers.Testcontainers
 import org.testcontainers.containers.BrowserWebDriverContainer
+import org.testcontainers.containers.PortForwardingContainer
 
 import java.time.Duration
 
@@ -117,8 +119,16 @@ class WebDriverContainerHolder {
         configuration.hostName != ContainerGebConfiguration.DEFAULT_HOSTNAME_FROM_CONTAINER
     }
 
-    private String getHostIp() {
-        currentContainer.getContainerInfo().getNetworkSettings().getNetworks().entrySet().first().value.ipAddress
+    private static String getHostIp() {
+        try {
+            PortForwardingContainer.getDeclaredMethod("getNetwork").with {
+                accessible = true
+                Optional<ContainerNetwork> network = invoke(PortForwardingContainer.INSTANCE) as Optional<ContainerNetwork>
+                return network.get().ipAddress
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Could not access network from PortForwardingContainer", e)
+        }
     }
 
     @CompileStatic
