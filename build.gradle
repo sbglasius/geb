@@ -60,7 +60,8 @@ grailsPublish {
         graemerocher: 'Graeme Rocher',
         puneetbehl: 'Puneet Behl',
         sbglasius: 'Søren Berg Glasius',
-        matrei: 'Mattias Reichel'
+        matrei: 'Mattias Reichel',
+        jdaugherty: 'James Daugherty',
     ]
 }
 
